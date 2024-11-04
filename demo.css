@@ -1,0 +1,98 @@
+/* SignUp.css */
+
+.signup {
+    max-width: 400px; /* Maximum width of the form */
+    margin: 50px auto; /* Centering the form vertically and horizontally */
+    padding: 20px; /* Padding inside the form */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    background-color: #fff; /* White background */
+}
+
+.signup h1 {
+    text-align: center; /* Center align the heading */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+.signup form {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: column; /* Stack children vertically */
+}
+
+.signup input {
+    margin-bottom: 10px; /* Space between inputs */
+    padding: 10px; /* Padding inside inputs */
+    border: 1px solid #ccc; /* Light gray border for inputs */
+    border-radius: 5px; /* Rounded corners for inputs */
+    font-size: 16px; /* Font size */
+}
+
+.signup button {
+    padding: 10px; /* Padding inside the button */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners for button */
+    background-color: #007BFF; /* Bootstrap blue color */
+    color: white; /* White text */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+.signup button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.error {
+    color: red; /* Red text for error messages */
+    text-align: center; /* Center align error messages */
+    margin-bottom: 10px; /* Space below error messages */
+}
+/* SignIn.css */
+
+.signin {
+    max-width: 400px; /* Maximum width of the form */
+    margin: 50px auto; /* Centering the form vertically and horizontally */
+    padding: 20px; /* Padding inside the form */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    background-color: #fff; /* White background */
+}
+
+.signin h1 {
+    text-align: center; /* Center align the heading */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+.signin form {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: column; /* Stack children vertically */
+}
+
+.signin input {
+    margin-bottom: 10px; /* Space between inputs */
+    padding: 10px; /* Padding inside inputs */
+    border: 1px solid #ccc; /* Light gray border for inputs */
+    border-radius: 5px; /* Rounded corners for inputs */
+    font-size: 16px; /* Font size */
+}
+
+.signin button {
+    padding: 10px; /* Padding inside the button */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners for button */
+    background-color: #007BFF; /* Bootstrap blue color */
+    color: white; /* White text */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+.signin button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.error {
+    color: red; /* Red text for error messages */
+    text-align: center; /* Center align error messages */
+    margin-bottom: 10px; /* Space below error messages */
+}

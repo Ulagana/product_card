@@ -1,0 +1,77 @@
+.sub-category-body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.sub-category-h1 {
+  text-align: center;
+}
+
+.sub-category-form {
+  margin-bottom: 20px;
+}
+
+.sub-category-input {
+  width: 100%;
+  height: 45px;
+  margin-bottom: 9px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.sub-category-submit-button {
+  width: 100%;
+  height: 42px;
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.sub-category-submit-button:hover {
+  background-color: #3e8e41;
+}
+
+/* Style the list as a table */
+.sub-category-ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sub-category-li {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  align-items: center;
+}
+
+.sub-category-li span {
+  padding-right: 20px;
+}
+
+.sub-category-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.sub-category-button:hover {
+  background-color: #3e8e41;
+}
+
+.sub-category-delete-button {
+  background-color: #f44336;
+}
+
+.sub-category-delete-button:hover {
+  background-color: #d32f2f;
+}

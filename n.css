@@ -1,0 +1,29 @@
+.checkout-container {
+    max-width: 900px;
+    max-height: 800px; /* Set a maximum width for the container */
+    margin: auto; /* Center the container */
+    padding: 20px;
+    border: 3px solid #1d1d1d; /* Add a border around the checkout section */
+    border-radius: 8px; /* Rounded corners */
+  }
+  
+  table {
+    margin-top: 20px; /* Spacing above the table */
+    box-shadow: 0 2px 5px rgba(241, 12, 12, 0.1); /* Add subtle shadow */
+  }
+  
+
+  
+  td {
+    text-align: center; /* Center align table data */
+  }
+.bbb{
+    font-size: 20px;
+    text-decoration-line:underline;
+    padding-left:70%;
+    justify-content:end;
+}
+img{
+    filter:hue-rotate(20px);
+    object-fit: cover;
+}

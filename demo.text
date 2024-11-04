@@ -1,0 +1,185 @@
+// import { useEffect, useState } from "react";
+// import "./App.css";
+// // import { IoCloseCircleOutline } from "react-icons/io5";
+// import axios from "axios";
+// import Formtab from "./components/Formtab";
+
+// axios.default.baseURL = "http://localhost:8080/";
+// function App() {
+//   const [addSection, setAddSection] = useState(false);
+//   const [editSection, setEditSection] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: " ",
+//     email: " ",
+//     mobile: " ",
+//   });
+
+//   const [formDataEdit, setFormDataEdit] = useState({
+//     name: " ",
+//     email: " ",
+//     mobile: " ",
+//     id:'',
+//   });
+//   const [dataList, setDataList] = useState([]);
+
+//   //  const handleOnChange= (e)=>{
+//   //     const {value,name} = e.target
+//   //     setFormData((preve)= {
+//   //       return{
+//   //             ...preve,
+//   //         [name] : value
+//   //       }
+//   //     })
+//   //  }
+
+//   const handleOnChange = (e) => {
+ 
+//     const { value, name } = e.target;
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     const data = await axios.post("http://localhost:8080/create", formData);
+//     console.log(data);
+//     if (data.data.success) {
+//       alert(data.data.message);
+//       setAddSection(false);
+//       getFetchData();
+//     }
+//   };
+
+//   // axios
+//   // .post("http://localhost:8080/create", formData)
+//   // .then((res) => {
+//   //   console.log(res);
+//   // })
+//   // .catch((error) => {
+//   //   console.log(error);
+//   // });
+
+//   //get * data
+
+//   const getFetchData = async () => {
+//     const data = await axios.get("http://localhost:8080/");
+//     console.log(data);
+//     if (data.data.success) {
+//       setDataList(data.data.data);
+//     }
+//   };
+//   useEffect(() => {
+//     getFetchData();
+//   }, []);
+
+//   const handleDelete = async (id) => {
+//     const data = await axios.delete("http://localhost:8080/delete/" + id);
+
+//     if (data.data.success) {
+//       alert(data.data.message);
+//       getFetchData();
+//     }
+//   };
+
+//   const handleUpdate = async (e) => {
+//     e.preventDefault();
+//     const data = await axios.put("http://localhost:8080/update/", formDataEdit);
+//     if (data.data.success) {
+//       alert(data.data.message);
+//       getFetchData();
+//     }
+//   };
+
+//   const handleEditOnChange = async (e) => {
+//     console.log('id',e._id);
+//     const { value, name } = e.target;
+//     setFormDataEdit((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+
+//   const handleEdit = (el,id) => {
+//     setFormDataEdit({
+//       id:id
+//     })
+//     console.log('id',id);
+//     setFormDataEdit(el);
+//     setEditSection(true);
+//   };
+
+//   return (
+//     <>
+//       <div className="container">
+//         <button className="btn btn-add" onClick={() => setAddSection(true)}>
+//           {" "}
+//           Add
+//         </button>
+
+//         {addSection && (
+//           <Formtab
+//             handleSubmit={handleSubmit}
+//             handleOnChange={handleOnChange}
+//             handleClose={() => setAddSection(false)}
+//             rest={formData}
+//           />
+//         )}
+//         {editSection && (
+//           <Formtab
+//             handleSubmit={handleUpdate}
+//             handleOnChange={handleEditOnChange}
+//             handleClose={() => setEditSection(false)}
+//             rest={formDataEdit}
+//           />
+//         )}
+
+//         <div className="tableContainer">
+//           <table>
+//             <thead>
+//               <tr>
+//                 <td>Name</td>
+//                 <td>Email</td>
+//                 <td>Mobile</td>
+//                 <td>Action</td>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {dataList[0] ? (
+//                 dataList.map((el) => {
+//                   return (
+//                     <tr>
+//                       <td>{el.name}</td>
+//                       <td>{el.email}</td>
+//                       <td>{el.mobile}</td>
+//                       <td>
+//                         <button
+//                           className="btn btn-edit"
+//                           onClick={() => handleEdit(el,el._id)}
+//                         >
+//                           Edit 
+//                         </button>{" "}
+//                         <span> </span>
+//                         <button
+//                           className="btn btn-del"
+//                           onClick={() => handleDelete(el._id)}
+//                         >
+//                           delete
+//                         </button>
+//                       </td>
+//                     </tr>
+//                   );
+//                 })
+//               ) : (
+//                 <p style={{ textAlign: "center" }}>No data Found</p>
+//               )}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+// export default App;

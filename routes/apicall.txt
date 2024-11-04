@@ -1,0 +1,808 @@
+Create a Category (POST)
+
+URL: http://localhost:5000/api/categories/post
+Method: POST
+Body (JSON):
+json
+Copy code
+{
+  "name": "Electronics",
+  "description": "All kinds of electronic items"
+}
+
+
+
+2) Read Categories (GET)
+
+URL: http://localhost:5000/api/categories
+Method: GET
+Body: None (GET request).
+
+
+
+3)Update a Category (PUT)
+
+URL: http://localhost:5000/api/categories/(id :key)in db
+Method: PUT
+Body (JSON):
+json
+Copy code
+{
+  "name": "Home Electronics",
+  "description": "Electronics for home use"
+}
+
+4) Delete a Category (DELETE)
+
+URL: http://localhost:5000/api/categories/(id :key)in db
+Method: DELETE
+Body: None.
+Replace :id with the actual category ID you want to delete.
+
+
+
+
+const express = require('express');
+const router = express.Router();
+const mongoose= require('mongoose')
+const Subcategory = require('../models/Subcategory');
+const Category = require('../models/Category')
+
+
+// Create a new subcategory
+router.post('/', async (req, res) => {
+    try {
+        console.log('req.body',req.body);
+        const subcategory = new Subcategory(req.body);
+        await subcategory.save();
+        res.status(201).json(subcategory);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// Get all subcategories
+router.get('/', async (req, res) => {
+    try {
+        const subcategories = await Subcategory.find({});
+        res.json(subcategories);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Update a subcategory
+router.put('/:id', async (req, res) => {
+    try {
+        const subcategory = await Subcategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(subcategory);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// Delete a subcategory
+router.delete('/:id', async (req, res) => {
+    try {
+        await Subcategory.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Subcategory deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+module.exports = router;
+
+
+
+
+
+
+////product .js 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './pp.css'
+
+function Product() {
+    const [products, setProducts] = useState([]);
+    const [name, setName] = useState('');
+    const [catId, setCatId] = useState('');
+    const [subCatId, setSubCatId] = useState('');
+    const [image, setImage] = useState(null); // Handle image file
+    const [editId, setEditId] = useState(null); // For update
+    const [categories, setCategories] = useState([]);
+    const [subcategories, setSubcategories] = useState([]);
+    const [timestamp, setTimestamp] = useState('');
+
+    useEffect(() => {
+      fetchProducts();
+      fetchCategories();
+  }, []); // Remove fetchSubcategories from here
+  
+
+    // Fetch products
+    const fetchProducts = async () => {
+      try {
+          const response = await axios.get('http://localhost:5000/api/products');
+          setProducts(response.data);
+      } catch (error) {
+          console.error('Error fetching products:', error);
+      }
+  };
+
+    // Fetch categories
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/categories');
+            setCategories(response.data.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    // Fetch subcategories based on selected category
+  //   const fetchSubcategories = async (categoryId) => {
+  //     try {
+  //         const response = await axios.get(`http://localhost:5000/api/subcategories`);
+  //         // console.log("Subcategories:", response.data);
+  //         setSubcategories(response.data);
+  //     } catch (error) {
+  //         console.error('Error fetching subcategories:', error);
+  //     }
+  // };
+  const fetchSubcategories = async (categoryId) => {
+    console.log('Fetching subcategories for categoryId:', categoryId); // Debugging info
+    if (!categoryId) {
+        console.error('No categoryId provided');
+        return;
+    }
+    
+    try {
+        const response = await axios.get(`http://localhost:5000/api/subcategories/`);
+        console.log("Subcategories:", response.data);
+        setSubcategories(response.data);
+    } catch (error) {
+        console.error('Error fetching subcategories:', error);
+    }
+};
+
+  
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const productData = new FormData(); // To handle image upload
+        productData.append('name', name);
+        productData.append('catId', catId);
+        productData.append('subCatId', subCatId);
+        productData.append('image', image); // Append image file
+        productData.append('timestamp', new Date().toISOString());
+
+        try {
+            if (editId) {
+                // Update
+                await axios.put(`http://localhost:5000/api/products/${editId}`, productData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } else {
+                // Create
+                await axios.post('http://localhost:5000/api/products', productData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+            setName('');
+            setCatId('');
+            setSubCatId('');
+            setImage(null);
+            setTimestamp('');
+            setEditId(null);
+            fetchProducts();
+        } catch (error) {
+            console.error('Error saving product:', error);
+        }
+    };
+
+    const handleEdit = (product) => {
+        setEditId(product._id);
+        setName(product.name);
+        setCatId(product.catId?._id || product.catId);
+        setSubCatId(product.subCatId?._id || product.subCatId);
+        setTimestamp(product.timestamp);
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/products/${id}`);
+            fetchProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Product Management</h2>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Product Name"
+                    required
+                />
+                <select
+                    value={catId}
+                    onChange={(e) => {
+                        setCatId(e.target.value);
+                        fetchSubcategories(e.target.value);
+                    }}
+                    required
+                >
+                    <option value="">Select Category</option>
+                    {categories.map((category) => (
+                        <option key={category._id} value={category._id}>
+                            {category.name}
+                        </option>
+                    ))}
+                </select>
+
+
+                <select
+                      value={subCatId}
+                      onChange={(e) => setSubCatId(e.target.value)}
+                      required
+                  >
+                      <option value="">Select Subcategory</option>
+                      {subcategories.length > 0 ? (
+                          subcategories.map((subcategory) => (
+                              <option key={subcategory._id} value={subcategory._id}>
+                                  {subcategory.name}
+                              </option>
+                          ))
+                      ) : (
+                          <option value="">No Subcategories Available</option> // Display message if no subcategories
+                      )}
+                  </select>
+                <input
+                    type="file"
+                    onChange={(e) => setImage(e.target.files[0])}
+                />
+
+                <button type="submit">
+                    {editId ? 'Update Product' : 'Create Product'}
+                </button>
+            </form>
+
+            <ul>
+                {products.map((product) => (
+                    <li key={product._id}>
+                        <span>
+                            {product.name} - Category: {product.catId?.name || 'No Category'}, 
+                            Subcategory: {product.subCatId?.name || 'No Subcategory'}
+                        </span>
+                        <button onClick={() => handleEdit(product)}>Edit</button>
+                        <button onClick={() => handleDelete(product._id)}>Delete</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+export default Product;
+
+
+
+////
+
+      <ul className="product-list d-flex flex-wrap mx-2">
+  {products.map((product) => {
+    return (
+      <li
+      className="product-item col-6 col-md-6 col-lg-3 position-relative mx-4 p-4"
+      key={product._id}
+      style={{ listStyle: 'none' }}  
+    >
+        <div className="card ">
+          {product.image && (
+            <img
+              src={`http://localhost:5000/uploads/${product.image}`}
+              alt={product.name}
+              className="card-img-top"
+            />
+          )}
+
+          {/* Product Information */}
+          <div className="card-body">
+            <h2 className="card-title">{product.name}</h2>
+            <p className="card-text">
+              {product.catId?.name || "No Category"}
+              <span>,</span>
+              {product.subCatId?.name || "No Subcategory"}
+              <div className="product-rating">
+                {[...Array(5)].map((star, index) => (
+                  <i
+                    key={index}
+                    className={`fa m-1 fa-star ${
+                      index < (product.rating || 0) ? "checked" : ""
+                    }`}
+                    style={{
+                      color: index < (product.rating || 0) ? "#ffcc00" : "#ccc",
+                    }}
+                    onClick={() => handleRating(product._id, index + 1)}
+                  ></i>
+                ))}
+              </div>
+            </p>
+
+            <div className="product-info">
+              <p className="product-card__price">
+                Price: ${product.price?.toFixed(2) || "144.00"}
+              </p>
+
+             
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center mt-1">
+              <span className="text-primary font-weight-bold">
+                ${product.price?.toFixed(2) || "144.00"}
+              </span>
+              <button className="btn btn-primary">Add to Cart</button>
+            </div>
+
+              <div className="d-flex justify-content-between align-items-center mt-3">
+              <button onClick={() => handleLike(product._id)} className="btn btn-outline-secondary">
+                <i className={`fa ${product.liked ? 'fa-heart' : 'fa-heart-o'}`}></i> 
+              </button>
+              <button onClick={() => handleEdit(product)} className="btn btn-primary">
+                Edit
+              </button>
+              <button className="btn-primary btn-danger" onClick={() => handleDelete(product._id)}>
+                Delete
+              </button>
+            </div> 
+
+          </div>
+        </div>
+      </li>
+    );
+  })}
+</ul>
+
+///
+
+//home .js//
+// import React, { useState, useEffect } from "react";
+// import axios from "axios";
+
+
+// function Home() {
+//   const [products, setProducts] = useState([]);
+
+//   useEffect(() => {
+//     fetchProducts();
+//   }, []);
+
+//   const fetchProducts = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/products");
+//       setProducts(response.data);
+//     } catch (error) {
+//       console.error("Error fetching products:", error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h1>Welcome to Products</h1> <hr />
+
+//       <ul className="product-list d-flex flex-wrap mx-2">
+//         {products.map((product) => {
+//           return (
+//             <li
+//               className="product-item col-6 col-md-6 col-lg-3 position-relative mx-4 p-4"
+//               key={product._id}
+//               style={{ listStyle: 'none' }}
+//             >
+//               <div className="card">
+//                 {product.image && (
+//                   <img
+//                     src={`http://localhost:5000/uploads/${product.image}`}
+//                     alt={product.name}
+//                     className="card-img-top"
+//                   />
+//                 )}
+
+             
+//                 <div className="card-body">
+//                   <h2 className="card-title">{product.name}</h2>
+//                   <p className="card-text mb-0">
+//                     {product.catId?.name || "No Category"}
+//                     <span>,</span>
+//                     {product.subCatId?.name || "No Subcategory"}
+//                     <div className="product-rating">
+//                       {[...Array(5)].map((star, index) => (
+//                         <i
+//                           key={index}
+//                           className={`fa m-1 fa-star ${
+//                             index < (product.rating || 0) ? "checked" : ""
+//                           }`}
+//                           style={{
+//                             color: index < (product.rating || 0) ? "#ffcc00" : "#ccc",
+//                           }}
+//                         ></i>
+//                       ))}
+//                     </div>
+//                   </p>
+
+//                   <div className="product-info">
+//                     <p className="product-card__price">
+//                       Price: ${product.price?.toFixed(2) || "144.00"}
+//                     </p>
+//                   </div>
+
+//                   <div className="d-flex justify-content-between align-items-center mt-1">
+//                     <span className="text-primary font-weight-bold">
+//                       ${product.price?.toFixed(2) || "144.00"}
+//                     </span>
+//                     <button className="btn btn-primary">Add to Cart</button>
+//                   </div>
+
+//                 </div>
+//               </div>
+//             </li>
+//           );
+//         })}
+//       </ul>
+//     </div>
+//   );
+// }
+
+// export default Home;
+
+
+//////////////////////////////////////////////////
+
+// import React, { useState, useEffect } from "react";
+// import axios from "axios";
+
+// function Home() {
+//   const [products, setProducts] = useState([]);
+//   const [selectedProduct, setSelectedProduct] = useState(null);
+//   const [showCartPopup, setShowCartPopup] = useState(false); // To handle cart popup visibility
+//   const [quantity, setQuantity] = useState(1); // Default quantity
+
+//   useEffect(() => {
+//     fetchProducts();
+//   }, []);
+
+//   const fetchProducts = async () => {
+//     try {
+//       const response = await axios.get("http://localhost:5000/api/products");
+//       setProducts(response.data);
+//     } catch (error) {
+//       console.error("Error fetching products:", error);
+//     }
+//   };
+
+//   const handleDoubleClick = (product) => {
+//     setSelectedProduct(product); // Open the side panel when a product is double-clicked
+//   };
+
+//   const handleCartClick = (product) => {
+//     setSelectedProduct(product);
+//     setShowCartPopup(true); // Show the cart popup when clicked
+//     setQuantity(1); // Reset quantity to 1 for new product
+//   };
+
+//   // Close the cart popup
+//   const closePopup = () => {
+//     setShowCartPopup(false);
+//   };
+
+//   // Close the product details side panel
+//   const closeDetails = () => {
+//     setSelectedProduct(null);
+//   };
+
+//   const calculateTotal = () => {
+//     return selectedProduct ? (quantity * selectedProduct.price).toFixed(2) : "0.00";
+//   };
+
+//   return (
+//     <div style={{ display: "flex" }}>
+//       <div style={{ flex: 1 }}>
+//         <h1>Welcome to Products</h1>
+//         <hr />
+
+//         <ul className="product-list d-flex flex-wrap mx-2">
+//           {products.map((product) => (
+//             <li
+//               className="product-item col-6 col-md-6 col-lg-3 position-relative mx-4 p-4"
+//               key={product._id}
+//               style={{ listStyle: 'none' }}
+//               onDoubleClick={() => handleDoubleClick(product)} // Open side panel on double click
+//             >
+//               <div className="card">
+//                 {product.image && (
+//                   <img
+//                     src={`http://localhost:5000/uploads/${product.image}`}
+//                     alt={product.name}
+//                     className="card-img-top"
+//                   />
+//                 )}
+//                 <div className="card-body">
+//                   <h2 className="card-title">{product.name}</h2>
+//                   <p className="card-text mb-0">
+//                     {product.catId?.name || "No Category"}
+//                     <span>,</span>
+//                     {product.subCatId?.name || "No Subcategory"}
+//                   </p>
+//                   <div className="product-rating px-0 mx-1">
+//                     {[...Array(5)].map((star, index) => (
+//                       <i
+//                         key={index}
+//                         className={`fa m-1 fa-star ${index < (product.rating || 0) ? "checked" : ""}`}
+//                         style={{ color: index < (product.rating || 0) ? "#ffcc00" : "#ccc" }}
+//                       ></i>
+//                     ))}
+//                   </div>
+//                   <div className="product-info">
+//                     <p className="product-card__price">Price: ${product.price?.toFixed(2) || "144.00"}</p>
+//                   </div>
+//                   <div className="d-flex justify-content-between align-items-center mt-1">
+//                     <span className="text-primary font-weight-bold">${product.price?.toFixed(2) || "144.00"}</span>
+//                     <button className="btn btn-primary">
+//                       Add to Cart
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//             </li>
+//           ))}
+
+          
+//         </ul>
+//       </div>
+
+//       {/* Right Side Panel for Product Details */}
+//       {selectedProduct && (
+//         <div className="product-details-panel">
+//           <div className="panel-content">
+//             <span className="close" onClick={closeDetails}>&times;</span> {/* Close details side panel */}
+//             <h2>{selectedProduct.name}</h2>
+//             <div className="product-image">
+//               <img src={`http://localhost:5000/uploads/${selectedProduct.image}`} alt={selectedProduct.name} style={{ borderRadius: '50%', width: '100px', height: '100px' }} />
+//             </div>
+//             <p>Category: {selectedProduct.catId?.name || "No Category"}</p>
+//             <p>Subcategory: {selectedProduct.subCatId?.name || "No Subcategory"}</p>
+//             <p>Description: {selectedProduct.description || "No Description Available"}</p>
+//             <p>Price: ${selectedProduct.price?.toFixed(2) || "144.00"}</p>
+//             <div className="d-flex">
+//               <button className="btn btn-primary" onClick={() => handleCartClick(selectedProduct)}>Add to Cart</button>
+//               <button className="btn btn-secondary ml-2">Add to Favorite</button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Cart Popup */}
+//       {showCartPopup && selectedProduct && (
+//   <div className="cart-popup">
+//     <div className="cart-content">
+//       <span className="close" onClick={closePopup}>&times;</span> {/* Close cart popup */}
+//       <h2>{selectedProduct.name}</h2>
+//       <p>Category: {selectedProduct.catId?.name || "No Category"}</p>
+//       <p>Subcategory: {selectedProduct.subCatId?.name || "No Subcategory"}</p>
+
+//       {/* Quantity Input */}
+//       <label htmlFor="quantity">Quantity: </label>
+//       <input 
+//         type="number" 
+//         id="quantity" 
+//         value={quantity} 
+//         min="1" 
+//         onChange={(e) => setQuantity(Number(e.target.value))}
+//         style={{ width: "60px", marginLeft: "10px" }}
+//       />
+
+//       <p>Price: ${selectedProduct.price?.toFixed(2) || "144.00"}</p>
+      
+//       <hr />
+
+//       <p><strong>Total: ${calculateTotal()}</strong></p>
+      
+//       <div className="d-flex">
+//         <button className="btn btn-primary">Confirm</button>
+//         <button className="btn btn-secondary ml-2" onClick={closePopup}>Cancel</button>
+//       </div>
+//     </div>
+//   </div>
+// )}
+
+//     </div>
+//   );
+// }
+
+// export default Home;
+
+
+
+
+////////////////td//
+<td style={{ border: "1px solid #ccc", padding: "10px", textAlign: "center" }}>
+                    <img 
+                      src={`http://localhost:5000/uploads/${item.image}`} // Update with correct path to the image
+                      alt={item.name} 
+                      style={{ borderRadius: "60%", width: "60px", height: "60px" }} 
+                    />
+                  </td>
+
+
+                  ////////////////
+                  import React, { useState, useEffect } from 'react';
+import './pp.css'
+
+function Leo() {
+  // State for the form inputs
+  const [form, setForm] = useState({
+    id: '',
+    productId: '',
+    quantity: '',
+    price: '',
+    action: 'add', // New state for add/take action
+  });
+
+  // State to track products list
+  const [products, setProducts] = useState([]);
+
+  // Load products from local storage when the component mounts
+  useEffect(() => {
+    const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
+    setProducts(storedProducts);
+  }, []);
+
+  // Handle input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  // Add or take product based on the selected action
+  const handleProductAction = () => {
+    if (form.action === 'add') {
+      handleAddProduct();
+    } else if (form.action === 'take') {
+      handleTakeOutProduct();
+    }
+  };
+
+  // Add product to the list and local storage
+  const handleAddProduct = () => {
+    const totalPrice = form.quantity * form.price;
+    const newProduct = {
+      id: form.id,
+      productId: form.productId,
+      quantity: form.quantity,
+      price: form.price,
+      totalPrice: totalPrice,
+    };
+
+    const updatedProducts = [...products, newProduct]; // Add the new product
+    setProducts(updatedProducts);
+    localStorage.setItem('products', JSON.stringify(updatedProducts));
+
+    // Clear form
+    setForm({ id: '', productId: '', quantity: '', price: '', action: 'add' });
+  };
+
+  // Handle taking out a product (FIFO) based on user input
+  const handleTakeOutProduct = () => {
+    const takeQuantity = parseInt(form.quantity);
+    if (isNaN(takeQuantity) || takeQuantity <= 0) {
+      alert('Please enter a valid quantity to take out.');
+      return;
+    }
+
+    let remainingQuantity = takeQuantity;
+    let updatedProducts = [...products];
+
+    // Process products based on FIFO until the taken quantity is fulfilled
+    while (remainingQuantity > 0 && updatedProducts.length > 0) {
+      let firstProduct = updatedProducts[0];
+
+      if (firstProduct.quantity <= remainingQuantity) {
+        remainingQuantity -= firstProduct.quantity;
+        updatedProducts.shift(); // Remove the first product entirely
+      } else {
+        firstProduct.quantity -= remainingQuantity;
+        firstProduct.totalPrice = firstProduct.quantity * firstProduct.price;
+        remainingQuantity = 0;
+      }
+    }
+
+    setProducts(updatedProducts);
+    localStorage.setItem('products', JSON.stringify(updatedProducts));
+
+    // Clear form
+    setForm({ id: '', productId: '', quantity: '', price: '', action: 'add' });
+  };
+
+  return (
+    <div>
+      <h2>Add or Take Product</h2>
+      <form>
+        <div>
+          <label>ID:</label>
+          <input
+            type="text"
+            name="id"
+            value={form.id}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label>Product ID:</label>
+          <input
+            type="text"
+            name="productId"
+            value={form.productId}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label>Quantity:</label>
+          <input
+            type="number"
+            name="quantity"
+            value={form.quantity}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label>Price:</label>
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label>Action:</label>
+          <input
+            type="radio"
+            name="action"
+            value="add"
+            checked={form.action === 'add'}
+            onChange={handleInputChange}
+          /> Add
+          <input
+            type="radio"
+            name="action"
+            value="take"
+            checked={form.action === 'take'}
+            onChange={handleInputChange}
+          /> Take
+        </div>
+        <button type="button" onClick={handleProductAction}>
+          {form.action === 'add' ? 'Add Product' : 'Take Product'}
+        </button>
+      </form>
+
+      <h2>Products List</h2>
+      <ul>
+        {products.map((product, index) => (
+          <li key={index}>
+            {product.id} - {product.productId} - Quantity: {product.quantity} - Price: {product.price} - Total Price: {product.totalPrice}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Leo;
